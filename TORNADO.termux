@@ -10,6 +10,24 @@ LOG=""
 
 clear
 
+cmd_shell() {
+    while true; do
+        echo "type anything for commands or type exit to exit"
+        read -p "~ $ " input
+
+        if [[ "$input" == "exit" ]]; then
+            break
+
+        elif [[ "$input" == "" ]]; then
+            continue
+
+        else
+            $input
+        fi
+    done
+}
+
+
 # ================= LOGO =================
 logo() {
 clear
@@ -117,6 +135,7 @@ while true; do
     echo "3) Start VNC"
     echo "4) ADB Panel"
     echo "5) Exit"
+    echo "6) cmd_shell"
 
     read -p "Select: " c
 
@@ -126,6 +145,7 @@ while true; do
         3) vnc_start ;;
         4) adb_menu ;;
         5) exit ;;
+        6) cmd_shell ;;
     esac
 done
 }

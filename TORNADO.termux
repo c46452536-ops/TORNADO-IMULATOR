@@ -1,0 +1,134 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+# ================= COLORS =================
+RED="\033[91m"
+GREEN="\033[92m"
+BLUE="\033[38;2;0;150;255m"
+X="\033[0m"
+
+LOG=""
+
+clear
+
+# ================= LOGO =================
+logo() {
+clear
+echo -e "${BLUE}"
+cat << "EOF"
+██████╗  ██████╗ ██████╗ ███╗   ██╗
+██╔══██╗██╔═══██╗██╔══██╗████╗  ██║
+██████╔╝██║   ██║██████╔╝██╔██╗ ██║
+██╔══██╗██║   ██║██╔══██╗██║╚██╗██║
+██████╔╝╚██████╔╝██║  ██║██║ ╚████║
+╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝
+
+      T O R N A D O  O S
+EOF
+echo -e "${X}"
+}
+
+# ================= INSTALL CORE =================
+install_core() {
+
+    echo "[*] Updating system..."
+    pkg update -y && pkg upgrade -y
+
+    echo "[*] Installing required tools..."
+    pkg install -y curl wget git python termux-api
+
+    echo "[*] Installing VNC system..."
+    pkg install -y x11-repo
+    pkg install -y tigervnc xfce4 xfce4-goodies
+
+    echo "[*] Installing ADB tools..."
+    pkg install -y android-tools
+
+    mkdir -p ~/.vnc
+    echo "tornado123" | vncpasswd -f > ~/.vnc/passwd
+    chmod 600 ~/.vnc/passwd
+
+    echo "[✓] Setup complete"
+    sleep 2
+}
+
+# ================= MONITOR =================
+monitor() {
+while true; do
+    clear
+    logo
+
+    cpu=$(top -bn1 | grep "Cpu" | awk '{print $2+$4}')
+    ram=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
+
+    echo "CPU: $cpu%"
+    echo "RAM: $ram"
+
+    sleep 1
+done
+}
+
+# ================= VNC =================
+vnc_start() {
+    export DISPLAY=:1
+    vncserver :1 -geometry 1280x720 -depth 24
+}
+
+# ================= ADB =================
+adb_menu() {
+
+while true; do
+    clear
+    logo
+
+    echo "ADB MENU"
+    echo "1) Pair"
+    echo "2) Connect"
+    echo "3) Devices"
+    echo "4) Back"
+
+    read -p "> " c
+
+    case $c in
+        1)
+            read -p "IP:PORT: " t
+            adb pair $t
+            ;;
+        2)
+            read -p "IP:PORT: " t
+            adb connect $t
+            ;;
+        3)
+            adb devices
+            read
+            ;;
+        4) break ;;
+    esac
+done
+}
+
+# ================= MAIN MENU =================
+menu() {
+
+while true; do
+    logo
+
+    echo "1) Install System"
+    echo "2) Monitor"
+    echo "3) Start VNC"
+    echo "4) ADB Panel"
+    echo "5) Exit"
+
+    read -p "Select: " c
+
+    case $c in
+        1) install_core ;;
+        2) monitor ;;
+        3) vnc_start ;;
+        4) adb_menu ;;
+        5) exit ;;
+    esac
+done
+}
+
+# ================= AUTO START =================
+menu
